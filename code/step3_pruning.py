@@ -6,9 +6,9 @@ Jangle: three labels (joy, smile, positive face) from separate literatures. Are 
 and does that signal predict funding?
 """
 import numpy as np
-from scipy.stats import pearsonr
+from scipy.stats import chi2, pearsonr
 
-from common import Y2, controls, fit, load, summarize, coef
+from common import Y2, controls, fit, load, summarize, coef, z
 
 JINGLE = ["face_energy", "voice_energy", "joy_words"]
 JANGLE = ["joy", "smile", "pos_face"]
@@ -65,6 +65,40 @@ def run(df=None, quick=False):
     R["joy_words_alone"] = coef(fit(df, C + ["joy_words"])[0], "joy_words")
     R["joy_words_x_neg"] = coef(fit(df, C + ["face_energy", "voice_energy", "neg_words", "face_x_neg",
                                               "joy_words", "joywords_x_neg"])[0], "joywords_x_neg")
+
+    # Table 4, Panel B. Dominance beyond vocal energy, and the three face scores beyond their index.
+    R["dominance_r"] = float(pearsonr(df.voice_energy, df.voice_dom)[0])
+    dom_full = fit(df, C + ["voice_energy", "voice_dom"])[0]
+    dom_red = fit(df, C + ["voice_energy"])[0]
+    dom_stat = float(2 * (dom_full.llf - dom_red.llf))
+    R["dominance_lr"] = dict(chi2=dom_stat, df=1, p=float(chi2.sf(dom_stat, 1)))
+    face_full = fit(df, C + JANGLE)[0]
+    face_red = fit(df, C + ["pos_face_index"])[0]
+    face_stat = float(2 * (face_full.llf - face_red.llf))
+    R["face_beyond_index"] = dict(chi2=face_stat, df=2, p=float(chi2.sf(face_stat, 2)))
+
+    # Table 4, Panel A. One pooled energy interaction against the three channel-specific ones.
+    d = df.copy()
+    d["energy_pool"] = z(d[["face_energy", "voice_energy", "verbal_arousal"]].mean(axis=1))
+    d["pool_x_neg"] = d.energy_pool * d.neg_words
+    base = C + ["face_energy", "voice_energy", "verbal_arousal", "neg_words"]
+    apart = fit(d, base + ["face_x_neg", "voice_x_neg", "verbal_x_neg"])[0]
+    pooled = fit(d, base + ["pool_x_neg"])[0]
+    pool_stat = float(2 * (apart.llf - pooled.llf))
+    R["pooled_interaction"] = coef(pooled, "pool_x_neg")
+    R["pooled_lr"] = dict(chi2=pool_stat, df=2, p=float(chi2.sf(pool_stat, 2)))
+
+    # Table 4, Panel B. Five verbal positivity measures against their index.
+    v = df.copy()
+    v["vader_pos"] = z(v.w_vader_pos)
+    v["nrc_pos"] = z(v.w_nrc_positive)
+    verbal = ["joy_words", "pos_words", "vader_pos", "nrc_pos", "verbal_valence"]
+    v["verb_pos_index"] = z(v[verbal].mean(axis=1))
+    verb_only = fit(v, C + ["verb_pos_index"])[0]
+    verb_full = fit(v, C + verbal)[0]
+    verb_stat = float(2 * (verb_full.llf - verb_only.llf))
+    R["verbal_index"] = coef(verb_only, "verb_pos_index")
+    R["verbal_beyond_index"] = dict(chi2=verb_stat, df=4, p=float(chi2.sf(verb_stat, 4)))
 
     # ---- Extra checks, not reported in the manuscript
     # (a) Is the jingle just unreliable measurement? Alpha across thirds of the pitch, and

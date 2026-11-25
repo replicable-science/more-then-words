@@ -41,7 +41,9 @@ def load():
     # ---- Focal measures, one per channel, standardized over the 457 pitches
     df["face_energy"] = z(df.arousal_visual_norm)    # displayed passion: facial arousal, ELIM-FER
     df["voice_energy"] = z(df.arousal_vocal_norm)    # vocal arousal, wav2vec2 dimensional model
+    df["voice_dom"] = z(df.dominance_vocal)          # vocal dominance, same model, mean of the five-second windows
     df["verbal_arousal"] = z(df.arousal_text_norm)   # arousal of the words, NRC-VAD lexicon
+    df["verbal_valence"] = z(df.valence_text)        # valence of the words, same lexicon
     df["joy_words"] = z(df.w_nrc_joy)                # NRC joy words per 100 words (passion in text)
 
     # Negative words are Loughran-McDonald negative words per 100 words, standardized.

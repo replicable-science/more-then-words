@@ -1,10 +1,10 @@
 # Results of this run
 
-Run on 2026-11-25 14:00; 150 seconds. All numbers are recomputed from `data/pitches.csv`.
+Run on 2026-11-25 15:29; 146 seconds. All numbers are recomputed from `data/pitches.csv`.
 
 ## 1. Check against the manuscript
 
-74 of 74 reported numbers reproduced exactly (as rounded in the text).
+83 of 83 reported numbers reproduced exactly (as rounded in the text).
 
 | Section | Number | Manuscript | This run | Same |
 |---|---|---|---|---|
@@ -70,6 +70,15 @@ Run on 2026-11-25 14:00; 150 seconds. All numbers are recomputed from `data/pitc
 | Redundancy | Table 4 note: joyful words M, SD | 2.76, 1.77 | 2.76, 1.77 | yes |
 | Redundancy | Table 4 note: joyful words on funding | 0.13, p = .23 | 0.13, p = .23 | yes |
 | Redundancy | Table 4 note: joyful words x negative words | 0.04, p = .72 | 0.04, p = .72 | yes |
+| Redundancy | Vocal dominance with vocal energy | .98 | .98 | yes |
+| Redundancy | Vocal dominance beyond vocal energy | chi2(1) = 0.83, p = .36 | chi2(1) = 0.83, p = .36 | yes |
+| Redundancy | Joy, smile, and positive face beyond their index | chi2(2) = 3.64, p = .16 | chi2(2) = 3.64, p = .16 | yes |
+| Redundancy | Pooled energy x negative words, b and SE | 0.14, 0.09 | 0.14, 0.09 | yes |
+| Redundancy | Pooled energy x negative words, p | = .13 | = .13 | yes |
+| Redundancy | Channels apart versus pooled | chi2(2) = 7.39, p = .025 | chi2(2) = 7.39, p = .025 | yes |
+| Redundancy | Verbal positivity index, b and SE | 0.09, 0.10 | 0.09, 0.10 | yes |
+| Redundancy | Verbal positivity index, p | = .40 | = .40 | yes |
+| Redundancy | Five verbal measures beyond their index | chi2(4) = 3.69, p = .45 | chi2(4) = 3.69, p = .45 | yes |
 | Redundancy | Table 4 note: joy with smile in the two halves | .65 and .66 | .65 and .66 | yes |
 | Redundancy | Table 4 note: joy with positive face in the two halves | .80 and .81 | .80 and .81 | yes |
 | Redundancy | Table 4 note: smile with positive face in the two halves | .69 and .70 | .69 and .70 | yes |

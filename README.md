@@ -26,13 +26,13 @@ Use statsmodels 0.15 or newer. Version 0.14 drops a few small-sample fits, which
 
 `run_all.py` compares each printed number with the manuscript and compares the unrounded coefficients with `reference/manuscript_tables.json`. The main result is facial energy × Loughran–McDonald negative words: b = 0.31 (SE 0.10), p = .002 (Table 2, Model 3). Negative words in that model are the Loughran–McDonald list alone. VADER and the three-dictionary average appear only as robustness rows.
 
-The included run matches 74 of 74 reported numbers. The full list is in `output/results.md`.
+The included run matches 83 of 83 reported numbers. The full list is in `output/results.md`.
 
 ## Data
 
 | File | What it is |
 |---|---|
-| `data/pitches.csv` | 457 pitches. Outcomes, controls, and the measures the models use. `run_all.py` reads this file. |
+| `data/pitches.csv` | 457 pitches. Outcomes, controls, and the measures the models use, including vocal dominance and verbal valence. `run_all.py` reads this file. |
 | `data/transcripts.csv` | Transcript of each pitch. `run_all.py` reads this file for the examples. |
 | `data/presenter.csv` | Presenter id for each pitch. Two columns only. |
 | `data/inputs/mediaflow/per_frame/body_frames.parquet` | Frame-level face measures. Used only by `prep/build_face_measures.py`. Stored with Git LFS because of its size. |

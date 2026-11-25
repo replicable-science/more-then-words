@@ -128,6 +128,25 @@ def manuscript_checks(R):
     add(W, "Table 4 note: joyful words M, SD", "2.76, 1.77", f"{f2(jw['mean'])}, {f2(jw['sd'])}")
     add(W, "Table 4 note: joyful words on funding", "0.13, p = .23", f"{f2(s3['joy_words_alone'][0])}, p {p2(s3['joy_words_alone'][2])}")
     add(W, "Table 4 note: joyful words x negative words", "0.04, p = .72", f"{f2(s3['joy_words_x_neg'][0])}, p {p2(s3['joy_words_x_neg'][2])}")
+    add(W, "Vocal dominance with vocal energy", ".98", r2(s3["dominance_r"]))
+    dlr = s3["dominance_lr"]
+    add(W, "Vocal dominance beyond vocal energy", "chi2(1) = 0.83, p = .36",
+        f"chi2({dlr['df']}) = {f2(dlr['chi2'])}, p {p2(dlr['p'])}")
+    flr = s3["face_beyond_index"]
+    add(W, "Joy, smile, and positive face beyond their index", "chi2(2) = 3.64, p = .16",
+        f"chi2({flr['df']}) = {f2(flr['chi2'])}, p {p2(flr['p'])}")
+    pb, pse, ppv = s3["pooled_interaction"]
+    add(W, "Pooled energy x negative words, b and SE", "0.14, 0.09", f"{f2(pb)}, {f2(pse)}")
+    add(W, "Pooled energy x negative words, p", "= .13", p2(ppv))
+    plr = s3["pooled_lr"]
+    add(W, "Channels apart versus pooled", "chi2(2) = 7.39, p = .025",
+        f"chi2({plr['df']}) = {f2(plr['chi2'])}, p {p3(plr['p'])}")
+    vb, vse, vpv = s3["verbal_index"]
+    add(W, "Verbal positivity index, b and SE", "0.09, 0.10", f"{f2(vb)}, {f2(vse)}")
+    add(W, "Verbal positivity index, p", "= .40", p2(vpv))
+    vlr = s3["verbal_beyond_index"]
+    add(W, "Five verbal measures beyond their index", "chi2(4) = 3.69, p = .45",
+        f"chi2({vlr['df']}) = {f2(vlr['chi2'])}, p {p2(vlr['p'])}")
     h = s3["jangle_r_halves"]
     for key, rep in [("joy|smile", ".65 and .66"), ("joy|pos_face", ".80 and .81"), ("smile|pos_face", ".69 and .70")]:
         lo_, hi_ = sorted([h["A"][key], h["B"][key]])

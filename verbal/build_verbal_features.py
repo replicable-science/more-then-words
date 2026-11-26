@@ -190,8 +190,13 @@ for i, ((sid, dur), doc) in enumerate(zip(zip(asr.subsegment_id, asr.duration_s)
     for col, labels, _ in ENTS: r[col] = sum(e.label_ in labels for e in doc.ents)
     if STORED:
         r.update(vader_negative=float(asr.vader_neg.iloc[i]), vader_positive=float(asr.vader_pos.iloc[i]),
-                 vader_neutral=np.nan, vader_compound=np.nan)
+                 vader_neutral=float(asr.vader_neu.iloc[i]) if "vader_neu" in asr.columns else np.nan,
+                 vader_compound=float(asr.vader_compound.iloc[i]) if "vader_compound" in asr.columns else np.nan)
         r["lm_negative"] = int(asr.lm_neg.iloc[i]); r["lm_positive"] = int(asr.lm_pos.iloc[i])
+        for src in ("lm_uncertainty", "lm_litigious", "lm_constraining", "lm_superfluous", "lm_interesting",
+                    "lm_strong_modal", "lm_moderate_modal", "lm_weak_modal", "lm_irregular", "lm_harvard"):
+            if src in asr.columns:
+                r[src] = int(asr[src].iloc[i])
     else:
         ps = vader.polarity_scores(doc.text) if doc.text.strip() else dict(neg=np.nan, neu=np.nan, pos=np.nan, compound=np.nan)
         r.update(vader_negative=ps["neg"], vader_neutral=ps["neu"], vader_positive=ps["pos"], vader_compound=ps["compound"])
@@ -200,7 +205,7 @@ for i, ((sid, dur), doc) in enumerate(zip(zip(asr.subsegment_id, asr.duration_s)
     if LM is not None:
         hit = [LM.get(t.text.upper(), LM.get(t.lemma_.upper(), ())) for t in words]
         for c in LM_CATS:
-            if STORED and c in ("lm_negative", "lm_positive"):
+            if STORED and (c in ("lm_negative", "lm_positive") or c in asr.columns):
                 continue
             r[c] = sum(c in h for h in hit)
     if EMO is not None:

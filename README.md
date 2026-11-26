@@ -37,7 +37,7 @@ The included run matches 83 of 83 reported numbers. The full list is in `output/
 | `data/presenter.csv` | Presenter id for each pitch. Two columns only. |
 | `data/inputs/mediaflow/per_frame/body_frames.parquet` | Frame-level face measures. Used only by `prep/build_face_measures.py`. Stored with Git LFS because of its size. |
 | `data/inputs/mediaflow/per_frame/voice_chunks.parquet` | Five-second voice scores: acoustics, and vocal valence, arousal, and dominance. Not read by `run_all.py`. |
-| `data/inputs/mediaflow/per_frame/voice_asr.csv` | Timestamped transcript segments, plus the word count and the Loughran–McDonald and VADER positive and negative scores for each segment. The pitch-level Loughran–McDonald rates are these counts per 100 words. |
+| `data/inputs/mediaflow/per_frame/voice_asr.csv` | Timestamped transcript segments. Each segment has the full VADER output and the 2018 Loughran–McDonald lists. `data/pitches.csv` keeps only the positive and negative scores the paper uses. |
 
 `python prep/build_face_measures.py` rebuilds joy, smile, and positive face from the frame table and checks them against `data/pitches.csv`. That file comes through Git LFS, so install Git LFS and run `git lfs pull` before this check. `python run_all.py` does not need it.
 

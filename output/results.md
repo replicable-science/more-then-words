@@ -1,6 +1,6 @@
 # Results of this run
 
-Run on 2026-11-25 15:29; 146 seconds. All numbers are recomputed from `data/pitches.csv`.
+Run on 2026-11-26 10:29; 138 seconds. All numbers are recomputed from `data/pitches.csv`.
 
 ## 1. Check against the manuscript
 

@@ -49,6 +49,13 @@ def load():
     # Negative words are Loughran-McDonald negative words per 100 words, standardized.
     # Positive words are the positive list of the same dictionary, standardized.
     # The three-dictionary averages stay available as neg_comp and pos_comp for Table 5.
+    # Whole-pitch scores and their thirds are already in pitches.csv. Segment counts
+    # are in voice_asr.csv (n_words, lm_neg, lm_pos, vader_neg, vader_pos). Read them.
+    stored = ["w_lm_neg", "w_lm_pos", "w_vader_neg", "w_vader_pos"]
+    stored += [f"w_{kind}_{pol}_t{k}" for kind in ("lm", "vader") for pol in ("neg", "pos") for k in (1, 2, 3)]
+    missing = [c for c in stored if c not in df.columns]
+    if missing:
+        raise KeyError("pitches.csv is missing stored dictionary columns: " + ", ".join(missing))
     df["neg_words"] = z(df.w_lm_neg)
     df["pos_words"] = z(df.w_lm_pos)
     df["neg_comp"] = z((z(df.w_vader_neg) + z(df.w_lm_neg) + z(df.w_nrc_negative)) / 3)

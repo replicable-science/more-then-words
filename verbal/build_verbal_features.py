@@ -173,22 +173,36 @@ except Exception as e:
     print("presenter.csv not read (", type(e).__name__, "): keeping all videos, no presenter flag"); asr["is_presenter"] = np.nan
 asr = asr.sort_values(["subsegment_id", "t_start_s"]).reset_index(drop=True)
 asr["pause_before_s"] = (asr.t_start_s - asr.groupby("subsegment_id").t_end_s.shift()).clip(lower=0)
+STORED = {"n_words", "lm_neg", "lm_pos", "vader_neg", "vader_pos"}.issubset(asr.columns)
+study_pitch = None
+if STORED and os.path.exists(os.path.join(DATA, "pitches.csv")):
+    study_pitch = pd.read_csv(os.path.join(DATA, "pitches.csv")).set_index("subsegment_id")
+    print("Using stored Loughran-McDonald and VADER columns; not rescoring positive and negative.")
 
 rows = []; pitch_tokens = {}
-for (sid, dur), doc in zip(zip(asr.subsegment_id, asr.duration_s), nlp.pipe(asr.text, batch_size=64)):
-    toks = [t for t in doc if not t.is_space]; words = [t for t in toks if not t.is_punct]; n = len(words)
+for i, ((sid, dur), doc) in enumerate(zip(zip(asr.subsegment_id, asr.duration_s), nlp.pipe(asr.text, batch_size=64))):
+    toks = [t for t in doc if not t.is_space]; words = [t for t in toks if not t.is_punct]
+    n = int(asr.n_words.iloc[i]) if STORED else len(words)
     r = dict(n_words=n, n_sentences=len(list(doc.sents)) if n else 0, n_letters=sum(len(t.text) for t in words),
              n_long_words=sum(len(t.text) >= 7 for t in words), n_question_marks=sum(t.text == "?" for t in toks),
              words_per_second=n / dur if dur and dur > 0 else np.nan)
     g = grammar_counts(words); r.update(g)
     for col, labels, _ in ENTS: r[col] = sum(e.label_ in labels for e in doc.ents)
-    ps = vader.polarity_scores(doc.text) if doc.text.strip() else dict(neg=np.nan, neu=np.nan, pos=np.nan, compound=np.nan)
-    r.update(vader_negative=ps["neg"], vader_neutral=ps["neu"], vader_positive=ps["pos"], vader_compound=ps["compound"])
+    if STORED:
+        r.update(vader_negative=float(asr.vader_neg.iloc[i]), vader_positive=float(asr.vader_pos.iloc[i]),
+                 vader_neutral=np.nan, vader_compound=np.nan)
+        r["lm_negative"] = int(asr.lm_neg.iloc[i]); r["lm_positive"] = int(asr.lm_pos.iloc[i])
+    else:
+        ps = vader.polarity_scores(doc.text) if doc.text.strip() else dict(neg=np.nan, neu=np.nan, pos=np.nan, compound=np.nan)
+        r.update(vader_negative=ps["neg"], vader_neutral=ps["neu"], vader_positive=ps["pos"], vader_compound=ps["compound"])
     look = lambda d, t: d.get(t.lower_, d.get(t.lemma_.lower()))                      # word form, else lemma (rule of the manuscript)
     both = lambda d, t: d.get(t.lower_, set()) | d.get(t.lemma_.lower(), set())      # word form or lemma (Empath, regulatory focus)
     if LM is not None:
         hit = [LM.get(t.text.upper(), LM.get(t.lemma_.upper(), ())) for t in words]
-        for c in LM_CATS: r[c] = sum(c in h for h in hit)
+        for c in LM_CATS:
+            if STORED and c in ("lm_negative", "lm_positive"):
+                continue
+            r[c] = sum(c in h for h in hit)
     if EMO is not None:
         hit = [look(EMO, t) or () for t in words]
         for c in EMO_CATS: r["nrc_" + c] = sum(c in h for h in hit)
@@ -231,8 +245,13 @@ for sid, g in seg.groupby("subsegment_id", sort=True):
     r["flesch_kincaid_grade"] = 0.39 * n / ns + 11.8 * syl / n - 15.59 if n and ns else np.nan
     for c in count_cols: r[c.replace("n_long_words", "long_words").replace("n_question_marks", "question_marks")] = 100 * g[c].sum() / n if n else np.nan
     r["open_analytic_cdi"] = cdi({k: g[k].sum() for k, _ in GRAMMAR}, n)
-    ps = vader.polarity_scores(text) if text.strip() else dict(neg=np.nan, neu=np.nan, pos=np.nan, compound=np.nan)
-    r.update(vader_negative=ps["neg"], vader_neutral=ps["neu"], vader_positive=ps["pos"], vader_compound=ps["compound"], vader_compound_segment_mean=g.vader_compound.mean())
+    if study_pitch is not None and sid in study_pitch.index and {"w_vader_neg", "w_vader_pos"}.issubset(study_pitch.columns):
+        r.update(vader_negative=float(study_pitch.at[sid, "w_vader_neg"]),
+                 vader_positive=float(study_pitch.at[sid, "w_vader_pos"]),
+                 vader_neutral=np.nan, vader_compound=np.nan, vader_compound_segment_mean=np.nan)
+    else:
+        ps = vader.polarity_scores(text) if text.strip() else dict(neg=np.nan, neu=np.nan, pos=np.nan, compound=np.nan)
+        r.update(vader_negative=ps["neg"], vader_neutral=ps["neu"], vader_positive=ps["pos"], vader_compound=ps["compound"], vader_compound_segment_mean=g.vader_compound.mean())
     if VAD is not None:
         m = g.nrcvad_n_matched.sum(); r["nrcvad_share_matched"] = m / n if n else np.nan
         for c in ("valence", "arousal", "dominance"): r["nrcvad_" + c] = (g["nrcvad_" + c] * g.nrcvad_n_matched).sum() / m if m else np.nan

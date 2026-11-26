@@ -2,7 +2,7 @@
  "meta": {
   "quick": false,
   "pitch_success_rate": 0.649890590809628,
-  "seconds": 145.93933296203613
+  "seconds": 137.94124388694763
  },
  "step1": {
   "table2": {
@@ -714,7 +714,7 @@
     "share_significant_converged": 0.7794486215538847
    }
   },
-  "seconds_resampling": 113.3,
+  "seconds_resampling": 99.6,
   "extra_zero_crossing": {
    "neg_words_z": -0.7301783682798497,
    "pct": 0.37636761487964987
